@@ -3,27 +3,21 @@
     
     <div class="degrees" >
         <div class="left">
-            ciao
+            <span class="fs40">{{current.temp.toFixed()}}°</span>
+            <span class="f-grey fs10">{{city}}</span>
         </div>
         <div class="right">
-            ciao
+            
+            <!-- <Icon icon="emojione-v1:sun" /> -->
+            <Icon icon="emojione:cloud" width="100" />
         </div>
     </div>
     <div class="hours">
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
+        <div class="slot"
+        v-for="(hour, index) in hourly" :key="index">
+            <span>{{hour.temp.toFixed()}}</span>
+            <span>ciao</span>
+            <span>ciao</span>
         </div>
     </div>
     <div class="days">
@@ -48,12 +42,16 @@
 
 <script>
 import axios from "axios";
+import{ Icon }from "@iconify/vue2";
 
 export default {
     name:'Widget',
+    components:{
+        Icon,
+    },
     data(){
         return{
-            city:'london',
+            city:'London, UK',
             apiKey:'7e3f2de0ca0a9f26649cf8f9d03d24b8',
             api:'https://api.openweathermap.org/data/2.5/weather?',
             // apiDays:'https://api.openweathermap.org/data/2.5/forecast?',
@@ -116,13 +114,14 @@ export default {
             
         },
         getHours(){
-        // console.log(this.data.current)
+         
             this.current={
                             clouds : this.data.current.clouds,
                             weather: this.data.current.weather,
                             temp: this.data.current.temp,
                         };
-            console.log(this.data.daily)
+            // console.log(this.current)
+            // console.log(this.data.daily)
             // let temp = this.hourly;
             // this.hourly=[];
             for(let i=0; i<=4; i++){
@@ -141,7 +140,7 @@ export default {
                                 });
             }
             // console.log(this.daily);
-            // console.log(this.hourly);
+             console.log(this.hourly);
         },
 
     }
@@ -149,6 +148,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../styles/utilities.scss';
 
 .widget{
     display:flex;
@@ -161,7 +161,7 @@ export default {
         width: 100%;
         height: 150px;
         border-radius: 10px;
-        background-color: dodgerblue;
+        background-color: #fff;
         margin-bottom: 10px;
         display:flex;
         flex-direction:row;
@@ -169,17 +169,25 @@ export default {
         align-items: center;
     }
     .left,
-    .right{
-        flex-basis: calc ( 100% / 2 );
+    .right
+    {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
     }
     .hours,
     .days{
         padding:10px;
     }
     .slot{
-        flex-basis: calc ( 100% / 5 -  10%);
-        
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
+    
+    
     
 }
 </style>
