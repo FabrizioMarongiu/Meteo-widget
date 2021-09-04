@@ -1,4 +1,8 @@
 // FONTS
+
+.fs7 {
+  font-size: 7px;
+}
 .fs10 {
   font-size: 10px;
 }
@@ -6,7 +10,34 @@
   font-size: 40px;
 }
 
+.bold {
+  font-weight: 500;
+}
+
 // COLORS
 .f-grey {
   color: grey;
+}
+.f-lightgrey {
+  color: lightgrey;
+}
+// MARGIN
+.mb-5px {
+  margin-bottom: 5px;
+}
+
+.sun {
+  background: linear-gradient(to left, #e6c4308c 10%, #fff);
+}
+.moon {
+  background: linear-gradient(to left, #09098b7d 10%, #fff);
+}
+.cloud {
+  background: linear-gradient(to left, #a9a7ec52 10%, #fff);
+}
+.rain {
+  background: linear-gradient(to left, #6665887a 10%, #fff);
+}
+.thunderstorm {
+  background: linear-gradient(to left, #2a287d73 10%, #fff);
 }

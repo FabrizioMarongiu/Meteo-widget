@@ -6,35 +6,28 @@
             <span class="fs40">{{current.temp.toFixed()}}°</span>
             <span class="f-grey fs10">{{city}}</span>
         </div>
-        <div class="right">
+        <div class="right" :class="current.background">
             
-            <!-- <Icon icon="emojione-v1:sun" /> -->
-            <Icon icon="emojione:cloud" width="100" />
+            <Icon :icon="current.icons" width="100" />
+            
         </div>
     </div>
     <div class="hours">
         <div class="slot"
         v-for="(hour, index) in hourly" :key="index">
-            <span>{{hour.temp.toFixed()}}</span>
-            <span>ciao</span>
-            <span>ciao</span>
+            <span class="fs7 mb-5px bold">{{hour.temp.toFixed()}}°</span>
+            <span class="mb-5px"><Icon :icon="hour.icons" color="lightgray" /></span>
+            <span class="fs10 mb-5px bold">{{time + (index+1)}}:00</span>
+            <span v-if="time > 12 " class="fs7 f-lightgrey mb-5px">{{pm}}</span>
+            <span v-else class="fs7 f-lightgrey mb-5px">{{am}}</span>
         </div>
     </div>
     <div class="days">
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
-        </div>
-        <div class="slot">
-            ciao
+        <div class="slot"
+        v-for="(daily, index) in daily" :key="index">
+            <span class="fs7 mb-5px bold">{{daily.temp.day.toFixed()}}°</span>
+            <span class="mb-5px"><Icon :icon="daily.icons" color="lightgray" /></span>
+            <span class="fs10 mb-5px bold">{{daily.day}}</span>
         </div>
     </div>
   </div>
@@ -51,10 +44,9 @@ export default {
     },
     data(){
         return{
-            city:'London, UK',
+            city:'Milan, IT',
             apiKey:'7e3f2de0ca0a9f26649cf8f9d03d24b8',
             api:'https://api.openweathermap.org/data/2.5/weather?',
-            // apiDays:'https://api.openweathermap.org/data/2.5/forecast?',
             apiDays:'https://api.openweathermap.org/data/2.5/onecall?',
             lat:45.4,
             long:9.1,
@@ -62,6 +54,14 @@ export default {
             current:{},
             daily:[],
             hourly:[],
+            time:'',
+            am: 'AM',
+            pm: 'PM',
+            // today:'',
+            week: [
+                'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 
+                ],
+            icons:'',
             
         }
     },
@@ -99,13 +99,8 @@ export default {
                 
             .then((res) => {
                 this.data=res.data;
-                // this.current= res.data.current;
-                // this.hourly= res.data.hourly;
-                // this.daily= res.data.daily;
-                // console.log(this.current);
-                // console.log(this.hourly);
-                // console.log(this.daily);
-                         this.getHours();
+               
+                this.getHours();
 
             })
             .catch((error) => {
@@ -114,33 +109,140 @@ export default {
             
         },
         getHours(){
+            // GET HOURS AND DAYS
+            var dayjs = require ('dayjs');
+            
+             this.time = dayjs().hour();
+            
+             let day = dayjs().get('day');
+             
+             console.log(day)
+             
+            //  this.today = this.week[day - 1];
+            //   console.log(this.today);
          
+            // GET OBJECT
             this.current={
-                            clouds : this.data.current.clouds,
-                            weather: this.data.current.weather,
-                            temp: this.data.current.temp,
-                        };
-            // console.log(this.current)
-            // console.log(this.data.daily)
-            // let temp = this.hourly;
-            // this.hourly=[];
-            for(let i=0; i<=4; i++){
-                // console.log(temp[i])
-                // this.hourly+=temp[i];
-                
-                this.hourly.push( {
-                                    clouds: this.data.hourly[i].clouds,
-                                    weather: this.data.hourly[i].weather,
-                                    temp: this.data.hourly[i].temp,
-                                });
-                this.daily.push( {
-                                    clouds: this.data.daily[i].clouds,
-                                    weather: this.data.daily[i].weather,
-                                    temp: this.data.daily[i].temp,
-                                });
+                clouds : this.data.current.clouds,
+                weather: this.data.current.weather[0].main,
+                temp: this.data.current.temp,
+            };
+            
+            if(this.current.weather === 'Clear'){
+                if(this.time < 21){
+                    this.current = {
+                        ...this.current,
+                        icons: 'emojione-v1:sun',
+                        background:'sun',
+                    }
+                }else{
+                    this.current = {
+                        ...this.current,
+                        icons: 'emojione-v1:full-moon',
+                        background:'moon',
+                    }
+                }
+            }else if(this.current.weather === 'Clouds'){
+                this.current = {
+                        ...this.current,
+                        icons: 'emojione-v1:cloud',
+                        background:'cloud',
+                    }
+            }else if(this.current.weather === 'Rain'){
+                this.current = {
+                        ...this.current,
+                        icons: 'emojione-v1:cloud-with-rain',
+                        background:'rain',
+                    }
+            }else if(this.current.weather === 'Thunderstorm'){
+                    this.current = {
+                            ...this.current,
+                            icons: 'icon-park:thunderstorm-one',
+                            background:'thunderstorm',
+                        }
             }
-            // console.log(this.daily);
-             console.log(this.hourly);
+            
+            // console.log(this.current);
+            let nextDay = day + 1;
+
+            for(let i=0; i<=4; i++){
+                
+                if(nextDay === 7){
+                 nextDay = 0;
+                }else{ 
+                    nextDay = nextDay + 1;
+                }
+                console.log(nextDay)  
+                let tempHourly ={
+                                    clouds: this.data.hourly[i].clouds,
+                                    weather: this.data.hourly[i].weather[0].main,
+                                    temp: this.data.hourly[i].temp,
+                                };
+                if(tempHourly.weather === 'Clear'){
+                        this.hourly.push( {
+                            ...tempHourly,
+                            icons: 'clarity:sun-line',
+                        });
+                }else if(tempHourly.weather === 'Clouds'){
+                        this.hourly.push({
+                            ...tempHourly,
+                            icons: 'akar-icons:cloud',
+                        });
+                }else if(tempHourly.weather === 'Rain'){
+                    this.hourly.push({
+                            ...tempHourly,
+                            icons: 'carbon:cloud-rain',
+                        });
+                }else if(tempHourly.weather === 'Thunderstorm'){
+                    this.hourly.push({
+                            ...tempHourly,
+                            icons: 'ion:thunderstorm-outline',
+                        });
+                }
+                
+
+                let tempDaily =  {
+                                    clouds: this.data.daily[i].clouds,
+                                    weather: this.data.daily[i].weather[0].main,
+                                    temp: this.data.daily[i].temp,
+                                    day : this.week[nextDay],
+                                };
+                
+                
+
+
+                if(tempDaily.weather === 'Clear'){
+                        this.daily.push( {
+                            ...tempDaily,
+                            icons: 'clarity:sun-line',
+                        })
+                }else if(tempDaily.weather === 'Clouds'){
+                        this.daily.push({
+                            ...tempDaily,
+                            icons: 'akar-icons:cloud',
+                        })
+                }else if(tempDaily.weather === 'Rain'){
+                        this.daily.push({
+                            ...tempDaily,
+                            icons: 'carbon:cloud-rain',
+                        })
+                }else if(tempDaily.weather === 'Thunderstorm'){
+                    this.daily.push({
+                            ...tempDaily,
+                            icons: 'ion:thunderstorm-outline',
+                        });
+                }
+            }
+            
+
+              console.log(this.current);
+
+            //   if(this.daily[i].day && this.daily[i].day > 6){
+                    
+            //     }
+            
+            
+
         },
 
     }
@@ -167,14 +269,19 @@ export default {
         flex-direction:row;
         justify-content: space-around;
         align-items: center;
+        box-shadow: 8px 8px 3px rgba(211, 211, 211, 0.959);
     }
     .left,
     .right
     {
         display: flex;
+        flex-basis: 50%;
+        height: 100%;
         flex-direction: column;
         justify-content: center;
-        align-items: flex-start;
+        align-items: center;
+        overflow: hidden;
+        border-radius: 0 10px 10px 0;
     }
     .hours,
     .days{
